@@ -83,3 +83,22 @@ ggplot(merged_data, aes(x = category)) + geom_bar(fill = "skyblue", color = "bla
 ![](http://127.0.0.1:30473/graphics/2d695f50-e94a-4a30-8a18-f9382fa771e2.png)
 
 The `echo: false` option disables the printing of code (only output is displayed).
+
+```{r}
+library(leaflet)
+
+# Filter out rows with missing latitude or longitude
+geo_data <- merged_data[!is.na(merged_data$Latitude) & !is.na(merged_data$Longitude), ]
+
+# Clean up the Youtuber names to ensure valid UTF-8 characters
+geo_data$Youtuber <- iconv(geo_data$Youtuber, from = "UTF-8", to = "ASCII//TRANSLIT")
+
+# Create Leaflet map
+map <- leaflet(geo_data) %>%
+  addTiles() %>%
+  addMarkers(~Longitude, ~Latitude, popup = ~Youtuber)
+
+# Display the map
+map
+
+```
