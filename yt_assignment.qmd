@@ -24,16 +24,63 @@ library(ggplot2)
 
 ```
 
+New code
+
 ```{r}
+# Load necessary packages
+library(dplyr)
+
+# Load necessary libraries
+library(dplyr)
+
+# Load datasets
+global_youtube <- read.csv("global_youtube_statistics.csv")
+top_artists <- read.csv("topyoutube.csv")
+top_videos <- read.csv("Top_14_Ever_Most_Viewed_YouTube_Videos.csv")
+
+# Check the structure of datasets
+str(global_youtube)
+str(top_artists)
+str(top_videos)
+
+# Merge datasets
+# Assuming there are common variables to merge on, such as Youtuber/Artist/Channel Name
+merged_data <- merge(global_youtube, top_artists, by.x = "Youtuber", by.y = "Artist", all = TRUE)
+
+merged_data <- merge(merged_data, top_videos, by.x = "Youtuber", by.y = "Description", all = TRUE)
+
+# Check the structure of merged dataset
+str(merged_data)
+
+# Perform exploratory data analysis
+# For example, you can calculate summary statistics
+summary(merged_data)
+
+# Create visualizations
+library(ggplot2)
+ggplot(merged_data, aes(x = subscribers, y = video.views)) +
+  geom_point(color = "darkblue") +
+  labs(title = "Subscribers vs Total Views",
+       x = "Subscribers", y = "Total Views") +
+  theme_minimal()
+# Additional analysis based on the specific context and questions of interest
+
+# Save the merged dataset
+write.csv(merged_data, "merged_data.csv", row.names = FALSE)
 
 
 ```
 
 You can add options to executable code like this
 
+\`\`\`{# Load necessary libraries} library(dplyr) library(ggplot2)
 ```{r}
-#| echo: false
-2 * 2
+ggplot(merged_data, aes(x = category)) + geom_bar(fill = "skyblue", color = "black") + labs(title = "Number of Uploads per Category", x = "Category", y = "Number of Uploads") + theme_minimal() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
 ```
+
+
+
+![](http://127.0.0.1:30473/graphics/2d695f50-e94a-4a30-8a18-f9382fa771e2.png)
 
 The `echo: false` option disables the printing of code (only output is displayed).
