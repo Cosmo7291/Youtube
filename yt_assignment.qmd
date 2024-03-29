@@ -36,7 +36,7 @@ library(dplyr)
 # Load datasets
 global_youtube <- read.csv("global_youtube_statistics.csv")
 top_artists <- read.csv("topyoutube.csv")
-top_videos <- read.csv("Top_14_Ever_Most_Viewed_YouTube_Videos.csv")
+top_videos <- read.csv("Top 14 Ever Most Viewed YouTube Videos.csv")
 
 # Check the structure of datasets
 str(global_youtube)
@@ -74,12 +74,11 @@ write.csv(merged_data, "merged_data.csv", row.names = FALSE)
 You can add options to executable code like this
 
 \`\`\`{# Load necessary libraries} library(dplyr) library(ggplot2)
+
 ```{r}
 ggplot(merged_data, aes(x = category)) + geom_bar(fill = "skyblue", color = "black") + labs(title = "Number of Uploads per Category", x = "Category", y = "Number of Uploads") + theme_minimal() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
-
-
 
 ![](http://127.0.0.1:30473/graphics/2d695f50-e94a-4a30-8a18-f9382fa771e2.png)
 
