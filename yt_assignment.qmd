@@ -102,3 +102,60 @@ map <- leaflet(geo_data) %>%
 map
 
 ```
+
+```{r}
+library(plotly)
+color_scheme <- "blue"  # Replace with your actual color scheme
+# Assuming you have a data frame called "merged_data" with columns "category" and "uploads"
+plot_ly(merged_data, x = ~category, y = ~uploads, type = "bar", marker = list(color = color_scheme), height = 400, width = 600) %>%
+  layout(title = "Number of Uploads per Category",
+         xaxis = list(title = "Category"),
+         yaxis = list(title = "Number of Uploads"))
+
+```
+
+```{r}
+# Assuming color_scheme is defined elsewhere as a list
+color_scheme <- list(color = "blue")  # Example color scheme, replace with your actual color scheme
+
+# Interactive box plot: Distribution of total views by category
+plot_ly(merged_data, x = ~category, y = ~X100M, type = "box", marker = color_scheme, height = 400, width = 600) %>%
+  layout(title = "Distribution of Total Views by Category",
+         xaxis = list(title = "Category"),
+         yaxis = list(title = "Total Views"))
+
+
+```
+
+```{r}
+
+# Interactive line plot: Trend of subscribers over time
+# Define a function to convert abbreviated month names to month numbers
+abbrev_month_names_to_numbers <- function(abbrev_month_names) {
+  abbrev_month_names <- tolower(substr(abbrev_month_names, 1, 3))
+  match(abbrev_month_names, tolower(substr(month.abb, 1, 3)))
+}
+
+# Check unique values in the month column
+unique_values <- unique(merged_data$month)
+print(paste("Unique values in the month column:", paste(unique_values, collapse = ", ")))
+
+# Check the data type of the month column
+print(paste("Data type of the month column:", class(merged_data$month)))
+
+# Check for missing or NA values
+print(paste("Number of missing or NA values in the month column:", sum(is.na(merged_data$month))))
+
+# Convert month names in merged_data to month numbers
+merged_data$month_number <- abbrev_month_names_to_numbers(merged_data$created_month)
+
+# Now plot with the updated data
+plot_ly(data = merged_data, x = ~as.Date(month_number), y = ~subscribers, type = "scatter", mode = "lines",
+        line = list(color = "rgb(255, 100, 100)")) %>%
+  layout(title = "Trend of Subscribers Over Time",
+         xaxis = list(title = "Date"),
+         yaxis = list(title = "Subscribers"))
+
+
+
+```
