@@ -127,6 +127,225 @@ plot_ly(merged_data, x = ~category, y = ~X100M, type = "box", marker = color_sch
 
 ```
 
+
+
+```{r}
+# Set the locale explicitly
+Sys.setlocale(category = "LC_ALL", locale = "C")
+
+# Load required packages
+library(ggplot2)
+library(plotly)
+
+# Assuming your data frame is named 'merged_data'
+
+# Filter top 10 YouTubers based on views
+top_10_youtubers <- merged_data[order(merged_data$video.views, decreasing = TRUE), ][1:10, ]
+
+# Create a bar plot using ggplot2
+bar_plot <- ggplot(top_10_youtubers, aes(x = reorder(Youtuber, video.views), y = video.views)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  labs(title = "Top 10 YouTubers by Views",
+       x = "YouTuber",
+       y = "Views") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Print the plot directly
+print(bar_plot)
+
+```
+
+```{r}
+# Load required libraries
+library(dplyr)
+library(ggplot2)
+library(tm)
+
+# Read the data with specified encoding
+combined_data <- read.csv("merged_data.csv", encoding = "UTF-8")
+combined_data <- read.csv("merged_data.csv", encoding = "latin1")
+
+# Check data read-in
+str(combined_data)
+
+# Display the first few rows of the data
+head(combined_data)
+
+# Quantitative Analysis (Regression Model)
+# For demonstration purposes, let's build a GLM to predict subscribers based on video views and uploads
+
+glm_model <- glm(subscribers ~ video.views + uploads, data = combined_data, family = poisson)
+
+# Summary of the regression model
+summary(glm_model)
+
+# Qualitative Analysis (Text Mining / Thematic Analysis)
+# Preprocess text data
+corpus <- Corpus(VectorSource(combined_data$Title))
+
+# Perform text preprocessing
+
+corpus <- tm_map(corpus, content_transformer(tolower))
+corpus <- tm_map(corpus, removePunctuation)
+corpus <- tm_map(corpus, removeNumbers)
+corpus <- tm_map(corpus, removeWords, stopwords("en"))
+corpus <- tm_map(corpus, stemDocument)
+
+# Convert corpus to a document-term matrix
+dtm <- DocumentTermMatrix(corpus)
+
+# Perform thematic analysis using hierarchical clustering
+dist_matrix <- dist(dtm)
+clusters <- hclust(dist_matrix)
+
+# Plot hierarchical clustering dendrogram
+plot(clusters, hang = -1, cex = 0.8, main = "Hierarchical Clustering of Titles")
+
+# Clustered Heatmap Visualization
+library(pheatmap)
+
+# Calculate similarity matrix
+similarity_matrix <- as.matrix(dtm) %*% t(as.matrix(dtm))
+
+# Create heatmap
+pheatmap(similarity_matrix, clustering_method = "complete", main = "Clustered Heatmap of Titles")
+
+
+```
+```{r}
+
+# Load required libraries
+library(dplyr)
+library(ggplot2)
+library(tm)
+
+# Read the data with specified encoding
+combined_data <- read.csv("merged_data.csv", encoding = "UTF-8")
+combined_data <- read.csv("merged_data.csv", encoding = "latin1")
+
+# Check data read-in
+str(combined_data)
+
+# Display the first few rows of the data
+head(combined_data)
+
+# Quantitative Analysis (Regression Model)
+# For demonstration purposes, let's build a GLM to predict subscribers based on video views and uploads
+
+glm_model <- glm(subscribers ~ video.views + uploads, data = combined_data, family = poisson)
+
+# Summary of the regression model
+summary(glm_model)
+
+# Qualitative Analysis (Text Mining / Thematic Analysis)
+# Preprocess text data
+corpus <- Corpus(VectorSource(combined_data$Title))
+
+# Perform text preprocessing
+
+corpus <- tm_map(corpus, content_transformer(tolower))
+corpus <- tm_map(corpus, removePunctuation)
+corpus <- tm_map(corpus, removeNumbers)
+corpus <- tm_map(corpus, removeWords, stopwords("en"))
+corpus <- tm_map(corpus, stemDocument)
+
+# Convert corpus to a document-term matrix
+dtm <- DocumentTermMatrix(corpus)
+
+# Perform thematic analysis using hierarchical clustering
+dist_matrix <- dist(dtm)
+clusters <- hclust(dist_matrix)
+
+# Plot hierarchical clustering dendrogram
+plot(clusters, hang = -1, cex = 0.8, main = "Hierarchical Clustering of Titles")
+
+
+```
+
+**Ok
+
+```{r}
+# Load necessary libraries
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(tm)
+library(stringi)
+
+# Load the dataset
+merged_data <- read.csv("merged_data.csv")
+
+# Drop unnecessary columns
+merged_data <- merged_data %>%
+  select(-c(Total.Views, X100M, Avg, Video.Name, Channel_Name, Views, Likes, Uploading.Date, Duration))
+
+# Quantitative Analysis (Regression Model)
+# Build a regression model to predict video views
+model <- lm(video.views ~ subscribers + uploads + Population + Unemployment.rate + Urban_population, data = merged_data)
+
+# Summary of the regression model
+summary(model)
+
+# Visualize the regression model
+plot(model)
+
+# Qualitative Analysis (Text Mining / Thematic Analysis)
+# Combine video titles into a single text corpus
+corpus <- Corpus(VectorSource(merged_data$Title))
+
+# Convert the text data to "UTF-8" encoding
+corpus <- tm_map(corpus, content_transformer(function(x) iconv(x, to = "UTF-8")))
+
+# Preprocess the text data
+corpus <- tm_map(corpus, content_transformer(tolower))
+corpus <- tm_map(corpus, removePunctuation)
+corpus <- tm_map(corpus, removeNumbers)
+corpus <- tm_map(corpus, removeWords, stopwords("english"))
+corpus <- tm_map(corpus, stripWhitespace)
+
+# Create a document-term matrix
+dtm <- DocumentTermMatrix(corpus)
+
+# Find the most frequent terms
+term_freq <- colSums(as.matrix(dtm))
+top_terms <- sort(term_freq, decreasing = TRUE)[1:10]
+
+# Display the top terms
+print(top_terms)
+
+# Visualize the top terms
+barplot(top_terms, main = "Top Terms", ylab = "Frequency", las = 2, col = "lightblue")
+
+
+```
+
+
+
+```{r}
+# Assuming merged_data is your data frame and it has columns 'Youtuber', 'Rank', 'Highest_monthly_earnings', 'Lowest_monthly_earnings'
+
+# Sort the data by Rank and select the top 5
+merged_data <- merged_data[order(merged_data$rank),]
+merged_data <- head(merged_data, 5)
+
+# Convert earnings to a more readable format (in millions)
+merged_data$Highest_monthly_earnings <- merged_data$highest_monthly_earnings / 1e6
+merged_data$Lowest_monthly_earnings <- merged_data$lowest_monthly_earnings / 1e6
+
+# Plotting
+plot_ly(merged_data, x = ~rank, y = ~highest_monthly_earnings, type = 'scatter', mode = 'lines+markers', name = 'Highest Earnings', marker = list(color = 'blue'), hoverinfo = 'text', text = ~paste('Channel: ', Youtuber, '<br>Highest Earnings: $', Highest_monthly_earnings, 'M')) %>%
+  add_trace(y = ~lowest_monthly_earnings, name = 'Lowest Earnings', marker = list(color = 'red'), hoverinfo = 'text', text = ~paste('Channel: ', Youtuber, '<br>Lowest Earnings: $', lowest_monthly_earnings, 'M')) %>%
+  layout(title = 'Top 5 Youtubers: Highest and Lowest Monthly Earnings (in Millions)',
+         xaxis = list(title = 'Rank'),
+         yaxis = list(title = 'Earnings (in Millions)', tickmode = "array", tickvals = merged_data$Rank, ticktext = merged_data$Youtuber)) %>%
+  highlight(on = "plotly_hover", off = "plotly_doubleclick")
+
+
+```
+
+
+
+
 ```{r}
 
 # Interactive line plot: Trend of subscribers over time
