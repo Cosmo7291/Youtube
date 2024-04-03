@@ -6,7 +6,7 @@ execute:
   echo: false
 ---
 
-***Lets start With the Structure of our dataset:***
+***Lets start With the Structure of our Dataset:***
 
 These are the structure's of the 3 dataset's we have taken :
 
@@ -48,9 +48,9 @@ DiagrammeR::mermaid(mermaid_diagram)
 
 ```
 
-The following datasets have been merged into 1 dataset The code loads the dplyr library and loads three datasets: global_youtube, top_artists, and top_videos. The str() function inspects the structure of each dataset. Data is merged using functions like left_join(), right_join(), inner_join(), or full_join(), depending on the desired join type. Merging other datasets using join functions and common variables/columns is also possible.
+The code loads the dplyr package for data manipulation and transformation, loads three CSV files, inspects their structure using str(), and merges them using common variables. The merged data is stored in the merged_data variable, and the code then merges the datasets with top_videos.
 
-**Scatter Plot**
+#### **Scatter Plot**
 
 ```{r}
 # Load necessary packages
@@ -85,9 +85,7 @@ write.csv(merged_data, "merged_data.csv", row.names = FALSE)
 
 The scatter plot demonstrates a positive association between the number of subscribers and total views, with higher subscriber counts resulting in more views, implying that channels with more subscribers likely to have more views.
 
-
-
-**Geographical analysis**
+#### **Geographical analysis**
 
 ```{r}
 
@@ -109,9 +107,9 @@ map
 
 ```
 
+The following map shows the exact location of various Youtubes present throughout the globe it uses the longitude and latitude coloums from the dataset.
 
-
-**Bar Chart**
+#### **Bar Chart**
 
 ```{r}
 suppressWarnings(suppressPackageStartupMessages(library(plotly)))
@@ -138,22 +136,24 @@ library(plotly)
 # Filter top 10 YouTubers based on views
 top_10_youtubers <- merged_data[order(merged_data$video.views, decreasing = TRUE), ][1:10, ]
 
-# Create a bar plot using ggplot2
 bar_plot <- ggplot(top_10_youtubers, aes(x = reorder(Youtuber, video.views), y = video.views)) +
-  geom_bar(stat = "identity", fill = "skyblue") +
+  geom_bar(stat = "identity", fill = "darkcyan") +
+  geom_text(aes(label = video.views), vjust = -0.3) +  # This line adds the labels
   labs(title = "Top 10 YouTubers by Views",
        x = "YouTuber",
-       y = "Views") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+       y = "Views (in millions)") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_y_continuous(labels = function(x) as.integer(round(x / 1e6)))  # This line converts the y-axis values to millions, rounds them to the nearest whole number, and then converts them to integers
 
 # Print the plot directly
 print(bar_plot)
-```
 
+
+```
 
 ```{r}
 # Assuming color_scheme is defined elsewhere as a list
-color_scheme <- list(color = "blue")  # Example color scheme, replace with your actual color scheme
+color_scheme <- list(color = "purple")  
 
 # Interactive box plot: Distribution of total views by category
 plot_ly(merged_data, x = ~category, y = ~X100M, type = "box", marker = color_scheme, height = 400, width = 600) %>%
@@ -164,9 +164,9 @@ plot_ly(merged_data, x = ~category, y = ~X100M, type = "box", marker = color_sch
 
 ```
 
+### **Regression Model**
 
-
-**Ok**
+***Output:***
 
 ```{r}
 # Load necessary libraries
@@ -192,9 +192,44 @@ model <- lm(video.views ~ subscribers + uploads + Population + Unemployment.rate
 # Summary of the regression model
 summary(model)
 
+
+
+```
+
+## **Results**
+
+***Quantitative Analysis (Regression Model)*****:** The regression model is predicting video.views based on subscribers, uploads, Population, Unemployment.rate, and Urban_population.
+
+***Intercept:*** The intercept (base value when all predictors are 0) is -5.041e+09. However, an intercept in this context might not have a meaningful interpretation since the predictors cannot all be zero in reality.
+
+***Subscribers:*** For each additional subscriber, the video views increase by approximately 645.3, holding all other variables constant. This variable is highly significant with a p-value less than 2e-16.
+
+***Uploads*****:** For each additional upload, the video views increase by approximately 42750, holding all other variables constant. This variable is also significant with a p-value of 9.00e-07.
+
+***Population:*** The coefficient for population is not statistically significant at the common 0.05 level (p-value = 0.1684), suggesting that population might not have a significant effect on video views, given the other variables in the model.
+
+**Unemployment Rate:** The coefficient for the unemployment rate is marginally significant (p-value = 0.0706), suggesting that the unemployment rate might have an effect on video views, but this effect is not as strong as the effects of subscribers and uploads.
+
+**Urban Population:** The coefficient for urban population is not statistically significant at the common 0.05 level (p-value = 0.1813), suggesting that the urban population might not have a significant effect on video views, given the other variables in the model.
+
+**R-squared:** The R-squared value is 0.6308, which means that approximately 63.08% of the variation in video views can be explained by the model. The adjusted R-squared value, which adjusts for the number of predictors in the model, is slightly lower at 0.6287.
+
+**Conclusion**
+
+The regression model suggests that the number of subscribers and uploads have a significant positive effect on video views. The effects of population, unemployment rate, and urban population are not as clear, and further analysis might be needed to understand their impacts. The model explains about 63.08% of the variation in video views, which indicates a fairly good fit to the data. However, there might be other factors not included in the model that could explain the remaining variation in video views.
+
+**Visualizing the Model**
+
+```{r}
 # Visualize the regression model
 plot(model)
+```
 
+### **Qualitative Analysis**
+
+***Output:***
+
+```{r}
 # Qualitative Analysis (Text Mining / Thematic Analysis)
 # Combine video titles into a single text corpus
 corpus <- Corpus(VectorSource(merged_data$Title))
@@ -223,10 +258,18 @@ top_terms <- sort(term_freq, decreasing = TRUE)[1:10]
 # Display the top terms
 print(top_terms)
 
-# Visualize the top terms
-barplot(top_terms, main = "Top Terms", ylab = "Frequency", las = 2, col = "lightblue")
 
 
 ```
 
+**Visualizing the Model**
 
+```{r}
+
+# Visualize the top terms
+barplot(top_terms, main = "Top Terms", ylab = "Frequency", las = 2, col = "orange")
+```
+
+## **Results**
+
+The dataset shows a lopsided focus on films targeting children and music fans, with the most often appearing phrases being "kids," "music," and "songs." Content developers and marketers should try combining these common terms into video titles for better engagement.
