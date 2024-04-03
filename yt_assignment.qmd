@@ -2,35 +2,17 @@
 title: "Youtube Stats Assignment"
 format: html
 editor: visual
+execute: 
+  echo: false
 ---
 
-## Quarto
+***Lets start With the Structure of our dataset:***
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
-
-```{r}
-1 + 1
-```
-
-```{r}
-#| label: load-packages
-#| include: false
-
-library(ggplot2)
-
-```
-
-New code
+These are the structure of 3 dataset's we have taken :
 
 ```{r}
 # Load necessary packages
-library(dplyr)
-
-# Load necessary libraries
+suppressPackageStartupMessages(library(dplyr))
 library(dplyr)
 
 # Load datasets
@@ -49,12 +31,28 @@ merged_data <- merge(global_youtube, top_artists, by.x = "Youtuber", by.y = "Art
 
 merged_data <- merge(merged_data, top_videos, by.x = "Youtuber", by.y = "Description", all = TRUE)
 
-# Check the structure of merged dataset
-str(merged_data)
 
-# Perform exploratory data analysis
-# For example, you can calculate summary statistics
-summary(merged_data)
+# Creating a Mermaid diagram
+mermaid_diagram <- "
+graph LR
+    A[global_youtube] --> C[merged_data]
+    B[top_artists] --> C
+    D[top_videos] --> C
+"
+
+# Render the Mermaid diagram
+DiagrammeR::mermaid(mermaid_diagram)
+
+
+
+```
+
+The following datasets have been merged into 1 dataset The code loads the dplyr library and loads three datasets: global_youtube, top_artists, and top_videos. The str() function inspects the structure of each dataset. Data is merged using functions like left_join(), right_join(), inner_join(), or full_join(), depending on the desired join type. Merging other datasets using join functions and common variables/columns is also possible. 
+
+```{r}
+# Load necessary packages
+library(dplyr)
+library(DiagrammeR)
 
 # Create visualizations
 library(ggplot2)
@@ -67,8 +65,6 @@ ggplot(merged_data, aes(x = subscribers, y = video.views)) +
 
 # Save the merged dataset
 write.csv(merged_data, "merged_data.csv", row.names = FALSE)
-
-
 ```
 
 You can add options to executable code like this
@@ -127,8 +123,6 @@ plot_ly(merged_data, x = ~category, y = ~X100M, type = "box", marker = color_sch
 
 ```
 
-
-
 ```{r}
 # Set the locale explicitly
 Sys.setlocale(category = "LC_ALL", locale = "C")
@@ -155,114 +149,7 @@ print(bar_plot)
 
 ```
 
-```{r}
-# Load required libraries
-library(dplyr)
-library(ggplot2)
-library(tm)
-
-# Read the data with specified encoding
-combined_data <- read.csv("merged_data.csv", encoding = "UTF-8")
-combined_data <- read.csv("merged_data.csv", encoding = "latin1")
-
-# Check data read-in
-str(combined_data)
-
-# Display the first few rows of the data
-head(combined_data)
-
-# Quantitative Analysis (Regression Model)
-# For demonstration purposes, let's build a GLM to predict subscribers based on video views and uploads
-
-glm_model <- glm(subscribers ~ video.views + uploads, data = combined_data, family = poisson)
-
-# Summary of the regression model
-summary(glm_model)
-
-# Qualitative Analysis (Text Mining / Thematic Analysis)
-# Preprocess text data
-corpus <- Corpus(VectorSource(combined_data$Title))
-
-# Perform text preprocessing
-
-corpus <- tm_map(corpus, content_transformer(tolower))
-corpus <- tm_map(corpus, removePunctuation)
-corpus <- tm_map(corpus, removeNumbers)
-corpus <- tm_map(corpus, removeWords, stopwords("en"))
-corpus <- tm_map(corpus, stemDocument)
-
-# Convert corpus to a document-term matrix
-dtm <- DocumentTermMatrix(corpus)
-
-# Perform thematic analysis using hierarchical clustering
-dist_matrix <- dist(dtm)
-clusters <- hclust(dist_matrix)
-
-# Plot hierarchical clustering dendrogram
-plot(clusters, hang = -1, cex = 0.8, main = "Hierarchical Clustering of Titles")
-
-# Clustered Heatmap Visualization
-library(pheatmap)
-
-# Calculate similarity matrix
-similarity_matrix <- as.matrix(dtm) %*% t(as.matrix(dtm))
-
-# Create heatmap
-pheatmap(similarity_matrix, clustering_method = "complete", main = "Clustered Heatmap of Titles")
-
-
-```
-```{r}
-
-# Load required libraries
-library(dplyr)
-library(ggplot2)
-library(tm)
-
-# Read the data with specified encoding
-combined_data <- read.csv("merged_data.csv", encoding = "UTF-8")
-combined_data <- read.csv("merged_data.csv", encoding = "latin1")
-
-# Check data read-in
-str(combined_data)
-
-# Display the first few rows of the data
-head(combined_data)
-
-# Quantitative Analysis (Regression Model)
-# For demonstration purposes, let's build a GLM to predict subscribers based on video views and uploads
-
-glm_model <- glm(subscribers ~ video.views + uploads, data = combined_data, family = poisson)
-
-# Summary of the regression model
-summary(glm_model)
-
-# Qualitative Analysis (Text Mining / Thematic Analysis)
-# Preprocess text data
-corpus <- Corpus(VectorSource(combined_data$Title))
-
-# Perform text preprocessing
-
-corpus <- tm_map(corpus, content_transformer(tolower))
-corpus <- tm_map(corpus, removePunctuation)
-corpus <- tm_map(corpus, removeNumbers)
-corpus <- tm_map(corpus, removeWords, stopwords("en"))
-corpus <- tm_map(corpus, stemDocument)
-
-# Convert corpus to a document-term matrix
-dtm <- DocumentTermMatrix(corpus)
-
-# Perform thematic analysis using hierarchical clustering
-dist_matrix <- dist(dtm)
-clusters <- hclust(dist_matrix)
-
-# Plot hierarchical clustering dendrogram
-plot(clusters, hang = -1, cex = 0.8, main = "Hierarchical Clustering of Titles")
-
-
-```
-
-**Ok
+**Ok**
 
 ```{r}
 # Load necessary libraries
@@ -319,8 +206,6 @@ barplot(top_terms, main = "Top Terms", ylab = "Frequency", las = 2, col = "light
 
 ```
 
-
-
 ```{r}
 # Assuming merged_data is your data frame and it has columns 'Youtuber', 'Rank', 'Highest_monthly_earnings', 'Lowest_monthly_earnings'
 
@@ -342,9 +227,6 @@ plot_ly(merged_data, x = ~rank, y = ~highest_monthly_earnings, type = 'scatter',
 
 
 ```
-
-
-
 
 ```{r}
 
