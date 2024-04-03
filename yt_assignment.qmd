@@ -1,5 +1,5 @@
 ---
-title: "Youtube Stats Assignment"
+title: "Youtube Stats Analysis"
 format: html
 editor: visual
 execute: 
@@ -8,9 +8,10 @@ execute:
 
 ***Lets start With the Structure of our dataset:***
 
-These are the structure of 3 dataset's we have taken :
+These are the structure's of the 3 dataset's we have taken :
 
 ```{r}
+#| label: Graph of the process made by Mermaid
 # Load necessary packages
 suppressPackageStartupMessages(library(dplyr))
 library(dplyr)
@@ -47,42 +48,51 @@ DiagrammeR::mermaid(mermaid_diagram)
 
 ```
 
-The following datasets have been merged into 1 dataset The code loads the dplyr library and loads three datasets: global_youtube, top_artists, and top_videos. The str() function inspects the structure of each dataset. Data is merged using functions like left_join(), right_join(), inner_join(), or full_join(), depending on the desired join type. Merging other datasets using join functions and common variables/columns is also possible. 
+The following datasets have been merged into 1 dataset The code loads the dplyr library and loads three datasets: global_youtube, top_artists, and top_videos. The str() function inspects the structure of each dataset. Data is merged using functions like left_join(), right_join(), inner_join(), or full_join(), depending on the desired join type. Merging other datasets using join functions and common variables/columns is also possible.
+
+**Scatter Plot**
 
 ```{r}
 # Load necessary packages
 library(dplyr)
-library(DiagrammeR)
-
-# Create visualizations
 library(ggplot2)
+
+# Assuming merged_data is already available
+# If not, load or prepare your merged_data dataframe
+merged_data$subscribers <- merged_data$subscribers + 1
+merged_data$video.views <- merged_data$video.views + 1
+
+# Remove rows with NA or infinite values
+merged_data <- merged_data %>% filter(is.finite(subscribers), is.finite(video.views))
+
+# Create visualizations with scaled axes
 ggplot(merged_data, aes(x = subscribers, y = video.views)) +
   geom_point(color = "darkblue") +
+  scale_x_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = scales::trans_format("log10", scales::math_format(10^.x))) +
+  scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),
+                labels = scales::trans_format("log10", scales::math_format(10^.x))) +
   labs(title = "Subscribers vs Total Views",
-       x = "Subscribers", y = "Total Views") +
+       x = "Subscribers (Log Scale)", y = "Total Views (Log Scale)") +
   theme_minimal()
-# Additional analysis based on the specific context and questions of interest
 
-# Save the merged dataset
+# Save the merged dataset if needed
 write.csv(merged_data, "merged_data.csv", row.names = FALSE)
-```
 
-You can add options to executable code like this
 
-\`\`\`{# Load necessary libraries} library(dplyr) library(ggplot2)
-
-```{r}
-ggplot(merged_data, aes(x = category)) + geom_bar(fill = "skyblue", color = "black") + labs(title = "Number of Uploads per Category", x = "Category", y = "Number of Uploads") + theme_minimal() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
 
-![](http://127.0.0.1:30473/graphics/2d695f50-e94a-4a30-8a18-f9382fa771e2.png)
+The scatter plot demonstrates a positive association between the number of subscribers and total views, with higher subscriber counts resulting in more views, implying that channels with more subscribers likely to have more views.
 
-The `echo: false` option disables the printing of code (only output is displayed).
+
+
+**Geographical analysis**
 
 ```{r}
+
+suppressWarnings(library(leaflet))
 library(leaflet)
-
 # Filter out rows with missing latitude or longitude
 geo_data <- merged_data[!is.na(merged_data$Latitude) & !is.na(merged_data$Longitude), ]
 
@@ -99,7 +109,12 @@ map
 
 ```
 
+
+
+**Bar Chart**
+
 ```{r}
+suppressWarnings(suppressPackageStartupMessages(library(plotly)))
 library(plotly)
 color_scheme <- "blue"  # Replace with your actual color scheme
 # Assuming you have a data frame called "merged_data" with columns "category" and "uploads"
@@ -107,19 +122,6 @@ plot_ly(merged_data, x = ~category, y = ~uploads, type = "bar", marker = list(co
   layout(title = "Number of Uploads per Category",
          xaxis = list(title = "Category"),
          yaxis = list(title = "Number of Uploads"))
-
-```
-
-```{r}
-# Assuming color_scheme is defined elsewhere as a list
-color_scheme <- list(color = "blue")  # Example color scheme, replace with your actual color scheme
-
-# Interactive box plot: Distribution of total views by category
-plot_ly(merged_data, x = ~category, y = ~X100M, type = "box", marker = color_scheme, height = 400, width = 600) %>%
-  layout(title = "Distribution of Total Views by Category",
-         xaxis = list(title = "Category"),
-         yaxis = list(title = "Total Views"))
-
 
 ```
 
@@ -146,13 +148,30 @@ bar_plot <- ggplot(top_10_youtubers, aes(x = reorder(Youtuber, video.views), y =
 
 # Print the plot directly
 print(bar_plot)
+```
+
+
+```{r}
+# Assuming color_scheme is defined elsewhere as a list
+color_scheme <- list(color = "blue")  # Example color scheme, replace with your actual color scheme
+
+# Interactive box plot: Distribution of total views by category
+plot_ly(merged_data, x = ~category, y = ~X100M, type = "box", marker = color_scheme, height = 400, width = 600) %>%
+  layout(title = "Distribution of Total Views by Category",
+         xaxis = list(title = "Category"),
+         yaxis = list(title = "Total Views"))
+
 
 ```
+
+
 
 **Ok**
 
 ```{r}
 # Load necessary libraries
+suppressWarnings(suppressPackageStartupMessages(library(tidyr)))
+suppressWarnings(suppressPackageStartupMessages(library(tm)))
 library(dplyr)
 library(tidyr)
 library(ggplot2)
@@ -181,14 +200,18 @@ plot(model)
 corpus <- Corpus(VectorSource(merged_data$Title))
 
 # Convert the text data to "UTF-8" encoding
+suppressWarnings({
 corpus <- tm_map(corpus, content_transformer(function(x) iconv(x, to = "UTF-8")))
+})
 
 # Preprocess the text data
+suppressWarnings({
 corpus <- tm_map(corpus, content_transformer(tolower))
 corpus <- tm_map(corpus, removePunctuation)
 corpus <- tm_map(corpus, removeNumbers)
 corpus <- tm_map(corpus, removeWords, stopwords("english"))
 corpus <- tm_map(corpus, stripWhitespace)
+})
 
 # Create a document-term matrix
 dtm <- DocumentTermMatrix(corpus)
@@ -206,57 +229,4 @@ barplot(top_terms, main = "Top Terms", ylab = "Frequency", las = 2, col = "light
 
 ```
 
-```{r}
-# Assuming merged_data is your data frame and it has columns 'Youtuber', 'Rank', 'Highest_monthly_earnings', 'Lowest_monthly_earnings'
 
-# Sort the data by Rank and select the top 5
-merged_data <- merged_data[order(merged_data$rank),]
-merged_data <- head(merged_data, 5)
-
-# Convert earnings to a more readable format (in millions)
-merged_data$Highest_monthly_earnings <- merged_data$highest_monthly_earnings / 1e6
-merged_data$Lowest_monthly_earnings <- merged_data$lowest_monthly_earnings / 1e6
-
-# Plotting
-plot_ly(merged_data, x = ~rank, y = ~highest_monthly_earnings, type = 'scatter', mode = 'lines+markers', name = 'Highest Earnings', marker = list(color = 'blue'), hoverinfo = 'text', text = ~paste('Channel: ', Youtuber, '<br>Highest Earnings: $', Highest_monthly_earnings, 'M')) %>%
-  add_trace(y = ~lowest_monthly_earnings, name = 'Lowest Earnings', marker = list(color = 'red'), hoverinfo = 'text', text = ~paste('Channel: ', Youtuber, '<br>Lowest Earnings: $', lowest_monthly_earnings, 'M')) %>%
-  layout(title = 'Top 5 Youtubers: Highest and Lowest Monthly Earnings (in Millions)',
-         xaxis = list(title = 'Rank'),
-         yaxis = list(title = 'Earnings (in Millions)', tickmode = "array", tickvals = merged_data$Rank, ticktext = merged_data$Youtuber)) %>%
-  highlight(on = "plotly_hover", off = "plotly_doubleclick")
-
-
-```
-
-```{r}
-
-# Interactive line plot: Trend of subscribers over time
-# Define a function to convert abbreviated month names to month numbers
-abbrev_month_names_to_numbers <- function(abbrev_month_names) {
-  abbrev_month_names <- tolower(substr(abbrev_month_names, 1, 3))
-  match(abbrev_month_names, tolower(substr(month.abb, 1, 3)))
-}
-
-# Check unique values in the month column
-unique_values <- unique(merged_data$month)
-print(paste("Unique values in the month column:", paste(unique_values, collapse = ", ")))
-
-# Check the data type of the month column
-print(paste("Data type of the month column:", class(merged_data$month)))
-
-# Check for missing or NA values
-print(paste("Number of missing or NA values in the month column:", sum(is.na(merged_data$month))))
-
-# Convert month names in merged_data to month numbers
-merged_data$month_number <- abbrev_month_names_to_numbers(merged_data$created_month)
-
-# Now plot with the updated data
-plot_ly(data = merged_data, x = ~as.Date(month_number), y = ~subscribers, type = "scatter", mode = "lines",
-        line = list(color = "rgb(255, 100, 100)")) %>%
-  layout(title = "Trend of Subscribers Over Time",
-         xaxis = list(title = "Date"),
-         yaxis = list(title = "Subscribers"))
-
-
-
-```
