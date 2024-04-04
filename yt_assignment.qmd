@@ -124,6 +124,8 @@ plot_ly(merged_data, x = ~category, y = ~uploads, type = "bar", marker = list(co
 
 ```
 
+The following graphs shows that the top contributors to the platform in terms of uploads are the Entertainment and News & Politics indusrty.
+
 #### **Top 10 Youtubers**
 
 ```{r}
