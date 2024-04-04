@@ -28,7 +28,7 @@ str(top_artists)
 str(top_videos)
 
 # Merge datasets
-# Assuming there are common variables to merge on, such as Youtuber/Artist/Channel Name
+# Assuming there are common variables to merge on, such as Youtuber/Artist/Description
 merged_data <- merge(global_youtube, top_artists, by.x = "Youtuber", by.y = "Artist", all = TRUE)
 
 merged_data <- merge(merged_data, top_videos, by.x = "Youtuber", by.y = "Description", all = TRUE)
@@ -51,7 +51,7 @@ DiagrammeR::mermaid(mermaid_diagram)
 
 The code loads the dplyr package for data manipulation and transformation, loads three CSV files, inspects their structure using str(), and merges them using common variables. The merged data is stored in the merged_data variable, and the code then merges the datasets with top_videos.
 
-#### **Scatter Plot**
+#### **Subscribers Vs Total view**
 
 ```{r}
 # Load necessary packages
@@ -116,7 +116,7 @@ The following map shows the exact location of various Youtubes present throughou
 suppressWarnings(suppressPackageStartupMessages(library(plotly)))
 library(plotly)
 color_scheme <- "blue"  # Replace with your actual color scheme
-# Assuming you have a data frame called "merged_data" with columns "category" and "uploads"
+#columns "category" and "uploads"
 plot_ly(merged_data, x = ~category, y = ~uploads, type = "bar", marker = list(color = color_scheme), height = 400, width = 600) %>%
   layout(title = "Number of Uploads per Category",
          xaxis = list(title = "Category"),
@@ -135,8 +135,6 @@ Sys.setlocale(category = "LC_ALL", locale = "C")
 # Load required packages
 library(ggplot2)
 library(plotly)
-
-# Assuming your data frame is named 'merged_data'
 
 # Filter top 10 YouTubers based on views
 top_10_youtubers <- merged_data[order(merged_data$video.views, decreasing = TRUE), ][1:10, ]
@@ -179,7 +177,7 @@ Here’s a little analysis:
 
 **Film & Animation:** This category similarly exhibits a wide range of views, but it includes numerous outliers that greatly exceed the upper quartile, showing certain videos in this category have unusually high views.
 
-**Music:** The music category has the highest median views among all genres, showing that music videos tend to be more popular on YouTube. However, there are also some outliers indicating some music videos have views considerably beyond the average range.
+**Music:** The music category has one of the highest median views among all genres, showing that music videos tend to be more popular on YouTube. However, there are also some outliers indicating some music videos have views considerably beyond the average range.
 
 **People & Blogs**: This category has the narrowest range of views, showing that the viewing of these videos is pretty consistent. The median is lower than the other categories, indicating that these films tend to receive less views.
 
@@ -202,7 +200,7 @@ plot_ly(merged_data, x = ~rank, y = ~highest_monthly_earnings, type = 'scatter',
   highlight(on = "plotly_hover", off = "plotly_doubleclick")
 ```
 
-The following graphs shows the highest and lowest amout of earning by the top 5 YouTubers on the bases of there ranks highest is made by T-series rank 1 that generates its highest 9million dollars in a month and lowest around 5 million approx. 
+The following graphs shows the highest and lowest amout of earning by the top 5 YouTubers on the bases of there ranks highest is made by T-series rank 1 that generates its highest 9million dollars in a month and lowest around 5 million approx.
 
 ### **Regression Model**
 
