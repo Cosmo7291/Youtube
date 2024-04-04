@@ -1,9 +1,10 @@
 ---
-title: "Youtube Stats Analysis"
+title: "Youtube Statsistics 2023 Analysis"
 format: html
 editor: visual
 execute: 
   echo: false
+  warning: false
 ---
 
 ***Lets start With the Structure of our Dataset:***
@@ -109,7 +110,7 @@ map
 
 The following map shows the exact location of various Youtubes present throughout the globe it uses the longitude and latitude coloums from the dataset.
 
-#### **Bar Chart**
+#### **Number of Uploads per Category**
 
 ```{r}
 suppressWarnings(suppressPackageStartupMessages(library(plotly)))
@@ -122,6 +123,8 @@ plot_ly(merged_data, x = ~category, y = ~uploads, type = "bar", marker = list(co
          yaxis = list(title = "Number of Uploads"))
 
 ```
+
+#### **Top 10 Youtubers**
 
 ```{r}
 # Set the locale explicitly
@@ -148,8 +151,11 @@ bar_plot <- ggplot(top_10_youtubers, aes(x = reorder(Youtuber, video.views), y =
 # Print the plot directly
 print(bar_plot)
 
-
 ```
+
+The following graph shows the top 10 youtubers on the basis of number of Views.
+
+### **Categorical Distribution**
 
 ```{r}
 # Assuming color_scheme is defined elsewhere as a list
@@ -161,8 +167,40 @@ plot_ly(merged_data, x = ~category, y = ~X100M, type = "box", marker = color_sch
          xaxis = list(title = "Category"),
          yaxis = list(title = "Total Views"))
 
-
 ```
+
+the box plot graph titled “Categorical Distribution” is illustrating the distribution of total views (in 100M) among four different YouTube video categories: `Entertainment`, `Film & Animation`, `Music`, and `People & Blogs`.
+
+Here’s a little analysis:
+
+**Entertainment:** This category has a significantly wide range of total views, showing a substantial variety in the popularity of entertainment content. The median value looks to be approximately 20M views, implying that half of the films in this category have views fewer than this quantity.
+
+**Film & Animation:** This category similarly exhibits a wide range of views, but it includes numerous outliers that greatly exceed the upper quartile, showing certain videos in this category have unusually high views.
+
+**Music:** The music category has the highest median views among all genres, showing that music videos tend to be more popular on YouTube. However, there are also some outliers indicating some music videos have views considerably beyond the average range.
+
+**People & Blogs**: This category has the narrowest range of views, showing that the viewing of these videos is pretty consistent. The median is lower than the other categories, indicating that these films tend to receive less views.
+
+### **Monthly Highest & Lowest Earnings**
+
+```{r}
+# Assuming merged_data is your data frame and it has columns 'Youtuber', 'Rank', 'Highest_monthly_earnings', 'Lowest_monthly_earnings'
+# Sort the data by Rank and select the top 5
+merged_data <- merged_data[order(merged_data$rank),]
+merged_data <- head(merged_data, 5)
+# Convert earnings to a more readable format (in millions)
+merged_data$Highest_monthly_earnings <- merged_data$highest_monthly_earnings / 1e6
+merged_data$Lowest_monthly_earnings <- merged_data$lowest_monthly_earnings / 1e6
+# Plotting
+plot_ly(merged_data, x = ~rank, y = ~highest_monthly_earnings, type = 'scatter', mode = 'lines+markers', name = 'Highest Earnings', marker = list(color = 'blue'), hoverinfo = 'text', text = ~paste('Channel: ', Youtuber, '<br>Highest Earnings: $', Highest_monthly_earnings, 'M')) %>%
+  add_trace(y = ~lowest_monthly_earnings, name = 'Lowest Earnings', marker = list(color = 'red'), hoverinfo = 'text', text = ~paste('Channel: ', Youtuber, '<br>Lowest Earnings: $', lowest_monthly_earnings, 'M')) %>%
+  layout(title = 'Top 5 Youtubers: Highest and Lowest Monthly Earnings (in Millions)',
+         xaxis = list(title = 'Rank'),
+         yaxis = list(title = 'Earnings (in Millions)', tickmode = "array", tickvals = merged_data$Rank, ticktext = merged_data$Youtuber)) %>%
+  highlight(on = "plotly_hover", off = "plotly_doubleclick")
+```
+
+The following graphs shows the highest and lowest amout of earning by the top 5 YouTubers on the bases of there ranks highest is made by T-series rank 1 that generates its highest 9million dollars in a month and lowest around 5 million approx. 
 
 ### **Regression Model**
 
@@ -198,7 +236,7 @@ summary(model)
 
 ## **Results**
 
-***Quantitative Analysis (Regression Model)*****:** The regression model is predicting video.views based on subscribers, uploads, Population, Unemployment.rate, and Urban_population.
+***Quantitative Analysis (Regression Model)*****:** The regression model is predicting `video.views` based on subscribers, uploads, Population, Unemployment.rate, and Urban_population.
 
 ***Intercept:*** The intercept (base value when all predictors are 0) is -5.041e+09. However, an intercept in this context might not have a meaningful interpretation since the predictors cannot all be zero in reality.
 
